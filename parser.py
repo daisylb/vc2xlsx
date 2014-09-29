@@ -112,7 +112,7 @@ cell = '+'? letter:x digit:y -> Cell(x, y)
 number = <decimal (('e' | 'E') (digit+))?>:x -> Number(x)
 decimal = <(digit+:whole '.'?:dec digit*:point) | ('.':dec digit+:point)>
 
-parens = '(' sub_value:x ')' -> x
+parens = '(' sub_value:x (')' | end) -> x
 
 digit = anything:x ?(x in '0123456789') -> x
 letter = anything:x ?(x.upper() in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') -> x
