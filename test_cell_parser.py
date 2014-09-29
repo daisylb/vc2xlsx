@@ -21,7 +21,6 @@ do_test('\'hello', '\'hello')
 do_test('"hello', 'hello')
 do_test('hello', 'hello')
 do_test('HELLO', 'HELLO')
-do_test('=1+1', '\'=1+1')
 
 do_test('((1))', '1')
 do_test('(1+2', '=1+2')
