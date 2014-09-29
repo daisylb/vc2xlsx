@@ -82,15 +82,23 @@ class Label (object):
 
 
 _grammar = parsley.makeGrammar(r"""
-digit = anything:x ?(x in '0123456789') -> x
-letter = anything:x ?(x.upper() in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') -> x
+cell_content = label | value
+
+label = ('"' | '\'' | ' ' | letter):first anything*:rest -> Label(first, ''.join(rest))
+
+value = sub_value:x -> Value(x)
+sub_value = arithmetic | rhs_sub_value
+rhs_sub_value =  cell | number | parens
+
+arithmetic = sub_value:o1 ('+' | '-' | '*' | '/'):oper rhs_sub_value:o2 -> Arithmetic(o1, oper, o2)
+
 cell = '+'? letter:x digit:y -> Cell(x, y)
 number = '+'? digit+:x -> Number(''.join(x))
-arithmetic = (arithmetic | parenthesised_arithmetic | cell | number):o1 ('+' | '-' | '*' | '/'):oper (parenthesised_arithmetic | cell | number):o2 -> Arithmetic(o1, oper, o2)
-parenthesised_arithmetic = '(' arithmetic:a ')' -> a
-value = (arithmetic | cell | number):x -> Value(x)
-label = ('"' | '\'' | ' ' | letter):first anything*:rest -> Label(first, ''.join(rest))
-cell_content = label | value
+
+parens = '(' sub_value:x ')' -> x
+
+digit = anything:x ?(x in '0123456789') -> x
+letter = anything:x ?(x.upper() in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') -> x
 """, globals())
 
 def parse(value):
