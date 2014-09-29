@@ -93,7 +93,7 @@ label = ('"' | letter):first anything*:rest -> Label(first, ''.join(rest))
 cell_content = label | value
 """, globals())
 
-parse(value):
+def parse(value):
     return _grammar(value).cell_content()
 
 if __name__ == "__main__":
