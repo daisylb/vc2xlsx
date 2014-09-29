@@ -61,7 +61,7 @@ class Value (object):
 
     def excel(self):
         if isinstance(self.value, Number):
-            return self.value
+            return self.value.excel()
         elif isinstance(self.value, Arithmetic):
             return "={}".format(self.value.excel(suppress_parens=True))
         else:
@@ -93,7 +93,9 @@ rhs_sub_value =  cell | number | parens
 arithmetic = sub_value:o1 ('+' | '-' | '*' | '/'):oper rhs_sub_value:o2 -> Arithmetic(o1, oper, o2)
 
 cell = '+'? letter:x digit:y -> Cell(x, y)
-number = '+'? digit+:x -> Number(''.join(x))
+
+number = <('+' | '-')? decimal (('e' | 'E') (digit+))?>:x -> Number(x)
+decimal = <(digit+:whole '.'?:dec digit*:point) | ('.':dec digit+:point)>
 
 parens = '(' sub_value:x ')' -> x
 

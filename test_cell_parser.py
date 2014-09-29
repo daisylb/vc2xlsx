@@ -22,5 +22,13 @@ do_test('"hello', 'hello')
 do_test('hello', 'hello')
 do_test('HELLO', 'HELLO')
 
+# Numbers
+do_test('123', '123')
+do_test('.6', '.6')
+do_test('+8', '+8')
+do_test('-3.14', '-3.14')
+do_test('1.7e6', '1.7e6')
+do_test('-1.7E6', '-1.7E6')
+
 do_test('((1))', '1')
 do_test('(1+2', '=1+2')
