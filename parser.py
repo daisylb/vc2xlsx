@@ -99,9 +99,9 @@ cell_content = label | value
 
 label = ('"' | '\'' | ' ' | letter):first anything*:rest -> Label(first, ''.join(rest))
 
-value = sub_value:x -> Value(x)
-sub_value = arithmetic | rhs_sub_value
-rhs_sub_value =  cell | number | parens | unary_operation
+sub_value = parens | arithmetic | cell | number | unary_operation
+rhs_sub_value =  parens | cell | number | unary_operation
+value = (arithmetic | cell | number):x -> Value(x)
 
 arithmetic = sub_value:o1 ('+' | '-' | '*' | '/'):oper rhs_sub_value:o2 -> Arithmetic(o1, oper, o2)
 
