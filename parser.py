@@ -81,7 +81,7 @@ class Label (object):
         return self.value
 
 
-grammar = parsley.makeGrammar(r"""
+_grammar = parsley.makeGrammar(r"""
 digit = anything:x ?(x in '0123456789') -> x
 letter = anything:x ?(x.upper() in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') -> x
 cell = '+'? letter:x digit:y -> Cell(x, y)
@@ -93,8 +93,12 @@ label = ('"' | letter):first anything*:rest -> Label(first, ''.join(rest))
 cell_content = label | value
 """, globals())
 
-while True:
-    i = raw_input("> ")
-    result = grammar(i).cell_content()
-    print(repr(result))
-    print(result.excel())
+parse(value):
+    return _grammar(value).cell_content()
+
+if __name__ == "__main__":
+    while True:
+        i = raw_input("> ")
+        result = parse(i)
+        print(repr(result))
+        print(result.excel())
