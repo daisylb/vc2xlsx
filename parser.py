@@ -46,7 +46,7 @@ class Arithmetic (object):
             fs = "{}{}{}"
         else:
             fs = "({}{}{})"
-        return "({}{}{})".format(
+        return fs.format(
             self.operand1.excel(),
             self.operator,
             self.operand2.excel()
