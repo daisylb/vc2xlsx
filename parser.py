@@ -89,7 +89,7 @@ number = '+'? digit+:x -> Number(''.join(x))
 arithmetic = (arithmetic | parenthesised_arithmetic | cell | number):o1 ('+' | '-' | '*' | '/'):oper (parenthesised_arithmetic | cell | number):o2 -> Arithmetic(o1, oper, o2)
 parenthesised_arithmetic = '(' arithmetic:a ')' -> a
 value = (arithmetic | cell | number):x -> Value(x)
-label = ('"' | letter):first anything*:rest -> Label(first, ''.join(rest))
+label = ('"' | '\'' | ' ' | letter):first anything*:rest -> Label(first, ''.join(rest))
 cell_content = label | value
 """, globals())
 
