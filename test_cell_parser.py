@@ -30,5 +30,10 @@ do_test('-3.14', '-3.14')
 do_test('1.7e6', '1.7e6')
 do_test('-1.7E6', '-1.7E6')
 
+# Unary Identity/Negation
+do_test('+1', '+1')
+do_test('-B6', '=-B6')
+do_test('-(2*2)', '=-(2*2)')
+
 do_test('((1))', '1')
 do_test('(1+2', '=1+2')
