@@ -101,7 +101,7 @@ label = ('"' | '\'' | ' ' | letter):first anything*:rest -> Label(first, ''.join
 
 sub_value = parens | arithmetic | cell | number | unary_operation
 rhs_sub_value =  parens | cell | number | unary_operation
-value = (arithmetic | cell | number):x -> Value(x)
+value = (parens | arithmetic | cell | number | unary_operation):x -> Value(x)
 
 arithmetic = sub_value:o1 ('+' | '-' | '*' | '/'):oper rhs_sub_value:o2 -> Arithmetic(o1, oper, o2)
 
@@ -112,7 +112,7 @@ cell = '+'? letter:x digit:y -> Cell(x, y)
 number = <decimal (('e' | 'E') (digit+))?>:x -> Number(x)
 decimal = <(digit+:whole '.'?:dec digit*:point) | ('.':dec digit+:point)>
 
-parens = '(' sub_value:x (')' | end) -> x
+parens = '(' (parens | arithmetic | cell | number | unary_operation):x (')' | end) -> x
 """, globals())
 
 def parse(value):
