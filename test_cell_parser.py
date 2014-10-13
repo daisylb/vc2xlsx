@@ -9,15 +9,15 @@ def do_test(inv, outv):
         print(e)
     else:
         if actual_output != outv:
-            print("FAIL")
-            print("Input          : {}".format(inv))
-            print("Expected output: {}".format(outv))
-            print("Actual output  : {}".format(actual_output))
-            print("Tree           : {}".format(repr(tree)))
+            print(u"FAIL {:>30} \u2192 {:30}".format(inv, actual_output))
+            print("    Expected output: {}".format(outv))
+            print("    Tree           : {}".format(repr(tree)))
+        else:
+            print(u"PASS {:>30} \u2192 {:30}".format(inv, outv))
 
 
 # Labels
-do_test('\'hello', '\'hello')
+do_test('\'hello', '\'hello ')
 do_test('"hello', 'hello')
 do_test('hello', 'hello')
 do_test('HELLO', 'HELLO')
