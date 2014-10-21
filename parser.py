@@ -30,8 +30,16 @@ class UnaryOperation (object):
         return "UnaryOperation({}, {})".format(self.operator, self.operand)
 
     def excel(self):
+        if self.operator == '+':
+            # The '+' operator was frequently used in VisiCalc to prevent
+            # formulas that started with cell references from being treated as
+            # labels. Since the '=' operator in Excel serves that same purpose,
+            # we suppress the '+' operator completely.
+            return self.operand.excel()
+
         if isinstance(self.operand, BinaryOperations):
             return "{}({})".format(self.operator, self.operand.excel())
+
         return "{}{}".format(self.operator, self.operand.excel())
 
 class BinaryOperations (object):
