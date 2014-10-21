@@ -45,4 +45,8 @@ do_test('(1+1)', '=1+1')
 do_test('((1', '1')
 do_test('(1+2', '=1+2')
 
-do_test("1+1", "=1+1")
+# Functions
+do_test('@PI', '=PI()')
+do_test('@SUM(A1)', '=SUM(A1)')
+do_test('@SUM(1,3)', '=SUM(1,3)')
+do_test('@SUM(1,3+4,B5)', '=SUM(1,3+4,B5)')

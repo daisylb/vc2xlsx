@@ -69,6 +69,17 @@ class BinaryOperations (object):
         rv.append(self.rest[-1][1].excel())
         return "".join(rv)
 
+class FunctionCall (object):
+    def __init__(self, function_name, args):
+        self.function_name = function_name
+        self.args = args if args else []
+
+    def __repr__(self):
+        return "FunctionCall({}, {})".format(self.function_name, ', '.join(repr(x) for x in self.args))
+
+    def excel(self):
+        return "{}({})".format(self.function_name, ','.join(x.excel() for x in self.args))
+
 class Value (object):
     def __init__(self, value):
         self.value = value
@@ -97,7 +108,7 @@ class Label (object):
 
 _grammar = parsley.makeGrammar(r"""
 value = binary_ops | sub_value
-sub_value =  cell | number | unary_op | parens
+sub_value =  cell | number | unary_op | parens | function
 
 binary_ops = sub_value:first binary_rhs+:rest -> BinaryOperations(first, rest)
 binary_rhs = ('+' | '-' | '*' | '/'):operator sub_value:operand -> (operator, operand)
@@ -110,6 +121,9 @@ number = <decimal (('e' | 'E') (digit+))?>:x -> Number(x)
 decimal = <(digit+:whole '.'?:dec digit*:point) | ('.':dec digit+:point)>
 
 parens = '(' value:x (')' | end) -> x
+
+function = '@' <letter+>:name function_args?:args -> FunctionCall(name, args)
+function_args = '(' value:v (',' value)*:v2 ')' -> [v] + v2
 """, globals())
 
 def parse(value):
