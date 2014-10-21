@@ -29,6 +29,14 @@ do_test('-3.14', '-3.14')
 do_test('1.7e6', '1.7e6')
 do_test('-1.7E6', '-1.7E6')
 
+# Cell References
+do_test('+A1', '=A1')
+do_test('+AC99', '=AC99')
+
+# Cell Ranges
+do_test('+A1.A13', '=A1:A13')
+do_test('+AC23...AC33', '=AC23:AC33')
+
 # Binary Operations
 do_test('1+1', '=1+1')
 do_test('1-2*3', '=(1-2)*3')

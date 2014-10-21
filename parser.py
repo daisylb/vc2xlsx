@@ -21,6 +21,23 @@ class Cell (object):
     def excel(self):
         return "{}{}".format(self.x, self.y)
 
+class CellRange (object):
+    def __init__(self, x1, y1, x2, y2):
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+
+    def __repr__(self):
+        return "CellRange({}, {}, {}, {})".format(
+            self.x1, self.y1, self.x2, self.y2
+        )
+
+    def excel(self):
+        return "{}{}:{}{}".format(
+            self.x1, self.y1, self.x2, self.y2
+        )
+
 class UnaryOperation (object):
     def __init__(self, operator, operand):
         self.operator = operator
@@ -116,7 +133,7 @@ class Label (object):
 
 _grammar = parsley.makeGrammar(r"""
 value = binary_ops | sub_value
-sub_value =  cell | number | unary_op | parens | function
+sub_value =  cell_range | cell | number | unary_op | parens | function
 
 binary_ops = sub_value:first binary_rhs+:rest -> BinaryOperations(first, rest)
 binary_rhs = ('+' | '-' | '*' | '/'):operator sub_value:operand -> (operator, operand)
@@ -124,6 +141,7 @@ binary_rhs = ('+' | '-' | '*' | '/'):operator sub_value:operand -> (operator, op
 unary_op = ('+' | '-'):operator value:operand -> UnaryOperation(operator, operand)
 
 cell = <letter+>:x <digit+>:y -> Cell(x, y)
+cell_range = <letter+>:x1 <digit+>:y1 '.'{1,3} <letter+>:x2 <digit+>:y2 -> CellRange(x1, y1, x2, y2)
 
 number = <decimal (('e' | 'E') (digit+))?>:x -> Number(x)
 decimal = <(digit+:whole '.'?:dec digit*:point) | ('.':dec digit+:point)>
