@@ -103,6 +103,8 @@ class FunctionCall (object):
         return "FunctionCall({}, {})".format(self.function_name, ', '.join(repr(x) for x in self.args))
 
     def excel(self):
+        # Fortunately, all of the functions Visicalc supports have identical
+        # names and argument lists in Excel today.
         return "{}({})".format(self.function_name, ','.join(x.excel() for x in self.args))
 
 class Value (object):
