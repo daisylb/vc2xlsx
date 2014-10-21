@@ -30,38 +30,44 @@ class UnaryOperation (object):
         return "UnaryOperation({}, {})".format(self.operator, self.operand)
 
     def excel(self):
+        if isinstance(self.operand, BinaryOperations):
+            return "{}({})".format(self.operator, self.operand.excel())
         return "{}{}".format(self.operator, self.operand.excel())
 
-class Arithmetic (object):
-    def __init__(self, operand1, operator, operand2):
-        self.operand1 = operand1
-        self.operator = operator
-        self.operand2 = operand2
+class BinaryOperations (object):
+    def __init__(self, first, rest):
+        self.first = first
+        self.rest = rest
 
     def __repr__(self):
-        return "Arithmetic({}, {}, {})".format(
-                repr(self.operand1),
-                repr(self.operator),
-                repr(self.operand2)
+        rest_v = ', '.join('{}, {}'.format(a, b) for a, b in self.rest)
+        return "BinaryOperations({}, {})".format(
+                repr(self.first),
+                rest_v
         )
 
     def excel(self, suppress_parens=False):
         # VisiCalc used left-to-right evaluation of arithmetic operators, unless
-        # overriden by parentheses.
-        # By only allowing explicitly parenthesised arithmetic operators on the
-        # RHS, the grammar ensures that the AST's structure matches VisiCalc's
-        # order of evaluation.
-        # Here, we parenthesise every operation so that Excel will evaluate them
-        # the way we want, rather than applying its natural order of operations.
-        if suppress_parens:
-            fs = "{}{}{}"
-        else:
-            fs = "({}{}{})"
-        return fs.format(
-            self.operand1.excel(),
-            self.operator,
-            self.operand2.excel()
-        )
+        # overriden by parentheses. For that reason, this class matches a list
+        # of non-parenthesised binary operations rather than a single operation,
+        # and generates output for all of them.
+
+        operation_count = len(self.rest)
+
+        rv = []
+        if operation_count > 1:
+            rv.append("(" * (operation_count - 1))
+
+        rv.append(self.first.excel())
+
+        for operator, operand in self.rest[:-1]:
+            rv.append(operator)
+            rv.append(operand.excel())
+            rv.append(")")
+
+        rv.append(self.rest[-1][0])
+        rv.append(self.rest[-1][1].excel())
+        return "".join(rv)
 
 class Value (object):
     def __init__(self, value):
@@ -75,17 +81,12 @@ class Value (object):
                 (isinstance(self.value, UnaryOperation) and
                     isinstance(self.value.operand, Number))):
             return self.value.excel()
-        elif isinstance(self.value, Arithmetic):
-            return "={}".format(self.value.excel(suppress_parens=True))
         else:
             return "={}".format(self.value.excel())
 
 class Label (object):
-    def __init__(self, first, rest):
-        if first == '"':
-            self.value = rest
-        else:
-            self.value = first + rest
+    def __init__(self, value):
+        self.value = value
 
     def __repr__(self):
         return "Label({})".format(self.value)
@@ -95,28 +96,26 @@ class Label (object):
 
 
 _grammar = parsley.makeGrammar(r"""
-cell_content = label | value
+value = binary_ops | sub_value
+sub_value =  cell | number | unary_op | parens
 
-label = ('"' | '\'' | ' ' | letter):first anything*:rest -> Label(first, ''.join(rest))
+binary_ops = sub_value:first binary_rhs+:rest -> BinaryOperations(first, rest)
+binary_rhs = ('+' | '-' | '*' | '/'):operator sub_value:operand -> (operator, operand)
 
-sub_value = arithmetic | rhs_sub_value
-rhs_sub_value =  cell | number | unary_operation | parens
-value = sub_value:x -> Value(x)
+unary_op = ('+' | '-'):operator value:operand -> UnaryOperation(operator, operand)
 
-arithmetic = sub_value:o1 ('+' | '-' | '*' | '/'):oper rhs_sub_value:o2 -> Arithmetic(o1, oper, o2)
-
-unary_operation = ('+' | '-'):operator sub_value:operand -> UnaryOperation(operator, operand)
-
-cell = '+'? letter:x digit:y -> Cell(x, y)
+cell = <letter+>:x <digit+>:y -> Cell(x, y)
 
 number = <decimal (('e' | 'E') (digit+))?>:x -> Number(x)
 decimal = <(digit+:whole '.'?:dec digit*:point) | ('.':dec digit+:point)>
 
-parens = '(' (parens | arithmetic | cell | number | unary_operation):x (')' | end) -> x
+parens = '(' value:x (')' | end) -> x
 """, globals())
 
 def parse(value):
-    return _grammar(value).cell_content()
+    if value[0] in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'\"":
+        return Label(value)
+    return Value(_grammar(value).value())
 
 if __name__ == "__main__":
     while True:
