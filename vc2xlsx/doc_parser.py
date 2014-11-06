@@ -1,4 +1,7 @@
 import parsley
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Goto (object):
 	def __init__(self, x, y):
@@ -8,6 +11,9 @@ class Goto (object):
 	def __repr__(self):
 		return "Goto({}, {})".format(repr(self.x), repr(self.y))
 
+	def run_on_doc(self, doc):
+		doc.set_current_cell(self.x, self.y)
+
 class Entry (object):
 	def __init__(self, value):
 		self.value = value
@@ -15,12 +21,18 @@ class Entry (object):
 	def __repr__(self):
 		return "Entry({})".format(repr(self.value))
 
+	def run_on_doc(self, doc):
+		doc.set_current_value(self.value)
+
 class Menu (object):
 	def __init__(self, command):
 		self.command = command
 
 	def __repr__(self):
 		return "Menu({})".format(repr(self.command))
+
+	def run_on_doc(self, doc):
+		logger.warning("Didn't understand command /{}".format(self.command))
 
 _grammar = parsley.makeGrammar(r"""
 document = command*:c -> tuple(x for x in c if x)
@@ -41,3 +53,7 @@ if __name__ == "__main__":
 	with open(sys.argv[1]) as f:
 		result = parse(f.read())
 		print(repr(result))
+		from document import VisiCalcDocument
+		d = VisiCalcDocument()
+		d.run_commands(result)
+		print(repr(d))
